@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import PostItem from '../PostItem'
 
 import { deletePost, startEditingPost } from '../../blog/blog.reducer'
-import { RootState } from '../../../../store'
+import { RootState } from '../../../store'
 
 const PostList = (): JSX.Element => {
   const postList = useSelector((state: RootState) => state.blog.postList)
