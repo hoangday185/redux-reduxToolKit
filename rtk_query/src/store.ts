@@ -3,12 +3,14 @@ import blogReducer from './pages/blog/blog.slice'
 import { useDispatch } from 'react-redux'
 import blogApi from './pages/blog/blog.service'
 import { setupListeners } from '@reduxjs/toolkit/query'
+import { rtkQueryErrorLogger } from './middleware'
 
 export const store = configureStore({
   reducer: { blog: blogReducer, [blogApi.reducerPath]: blogApi.reducer }, //thêm reducer được tạo từ api slice
   // Adding the api middleware enables caching, invalidation, polling,
   // and other useful features of `rtk-query`.
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(blogApi.middleware)
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(blogApi.middleware, rtkQueryErrorLogger)
 })
 
 //option nhưng bắt buộc nếu dùng tính năng reFetchOnFocus/reFetchOnReConnect

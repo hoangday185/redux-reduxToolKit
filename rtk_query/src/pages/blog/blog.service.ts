@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { Post } from '../../types/blog.type'
+import { CustomError } from '../../utils/helper'
 
 const blogApi = createApi({
   reducerPath: 'blogApi',
@@ -24,10 +25,16 @@ const blogApi = createApi({
     }),
     addPost: builder.mutation<Post, Omit<Post, 'id'>>({
       query(body) {
-        return {
-          url: 'posts',
-          method: 'POST',
-          body
+        try {
+          // let a: any = null
+          // a.b = 1
+          return {
+            url: 'posts',
+            method: 'POST',
+            body
+          }
+        } catch (error: any) {
+          throw new CustomError(error.message)
         }
       },
       /**
@@ -35,13 +42,15 @@ const blogApi = createApi({
        * với nó sẽ bị gọi lại
        * Trong trường hợp này getPosts sẽ chạy lại
        */
-      invalidatesTags: (result, error, body) => [{ type: 'Posts', id: 'LIST' }]
+      invalidatesTags: (result, error, body) =>
+        error ? [] : [{ type: 'Posts', id: 'LIST' }]
     }),
     getPost: builder.query<Post, string>({
       query: (id) => `posts/${id}`
     }),
     updatePost: builder.mutation<Post, { id: string; body: Post }>({
       query(data) {
+        //throw Error('ahihi') //lỗi nhảy vào serialize Error type lỗi do người code
         return {
           url: `posts/${data.id}`,
           method: 'PUT',
@@ -49,7 +58,8 @@ const blogApi = createApi({
         }
       },
       //trong trường hợp này nó sẽ làm cho getPost chạy lại
-      invalidatesTags: (result, error, data) => [{ type: 'Posts', id: data.id }]
+      invalidatesTags: (result, error, data) =>
+        error ? [] : [{ type: 'Posts', id: data.id }]
     }),
     deletePost: builder.mutation<{}, string>({
       query(id) {
@@ -59,7 +69,8 @@ const blogApi = createApi({
         }
       },
       //trong trường hợp này nó sẽ làm cho getPost chạy lại
-      invalidatesTags: (result, error, id) => [{ type: 'Posts', id }]
+      invalidatesTags: (result, error, id) =>
+        error ? [] : [{ type: 'Posts', id }]
     })
   })
 })
