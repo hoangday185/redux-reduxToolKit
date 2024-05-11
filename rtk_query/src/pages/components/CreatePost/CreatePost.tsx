@@ -34,7 +34,11 @@ const CreatePost = (): JSX.Element => {
 
   const [addPost, addPostResult] = useAddPostMutation()
   const postId = useSelector((state: RootState) => state.blog.postId)
-  const { data } = useGetPostQuery(postId, { skip: !postId }) //truyền vào 1 cái option skip để bỏ qua việc fetch nếu ko có postId
+  const { data, refetch } = useGetPostQuery(postId, {
+    skip: !postId,
+    refetchOnMountOrArgChange: 5,
+    pollingInterval: 1000
+  }) //truyền vào 1 cái option skip để bỏ qua việc fetch nếu ko có postId
 
   const [updatePost, updatePostResult] = useUpdatePostMutation()
   useEffect(() => {
@@ -42,6 +46,7 @@ const CreatePost = (): JSX.Element => {
       setFormData(data)
     }
   }, [data])
+
   const errorForm: ErrorForm = useMemo(() => {
     const errorResult = postId ? updatePostResult.error : addPostResult.error
     //const errorResult: FetchBaseQueryError | SerializedError | undefined
@@ -49,11 +54,11 @@ const CreatePost = (): JSX.Element => {
     //   return (errorResult as FetchBaseQueryError).data.error
     // }
     if (isEnityError(errorResult)) {
-      console.log(errorResult)
       return errorResult.data.error as ErrorForm
     }
     return null
   }, [postId, addPostResult, updatePostResult])
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     try {
@@ -70,6 +75,15 @@ const CreatePost = (): JSX.Element => {
 
   return (
     <form onSubmit={handleSubmit}>
+      <button
+        className='group relative inline-flex items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-purple-600 to-blue-500 p-0.5 text-sm font-medium text-gray-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 group-hover:from-purple-600 group-hover:to-blue-500 dark:text-white dark:focus:ring-blue-800'
+        type='button'
+        onClick={() => refetch()}
+      >
+        <span className='relative rounded-md bg-white px-5 py-2.5 transition-all duration-75 ease-in group-hover:bg-opacity-0 dark:bg-gray-900'>
+          Force Fetch
+        </span>
+      </button>
       <div className='mb-6'>
         <label
           htmlFor='title'

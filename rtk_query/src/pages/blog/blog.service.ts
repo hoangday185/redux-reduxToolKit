@@ -5,7 +5,13 @@ import { CustomError } from '../../utils/helper'
 const blogApi = createApi({
   reducerPath: 'blogApi',
   tagTypes: ['Posts'],
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:4000/' }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: 'http://localhost:4000/',
+    prepareHeaders(headers) {
+      headers.set('authorization', 'Bearer ABCXYZ')
+      return headers
+    }
+  }),
   endpoints: (builder) => ({
     getPostList: builder.query<Post[], void>({
       query: () => `posts`, //method ko có argument
@@ -46,7 +52,16 @@ const blogApi = createApi({
         error ? [] : [{ type: 'Posts', id: 'LIST' }]
     }),
     getPost: builder.query<Post, string>({
-      query: (id) => `posts/${id}`
+      query: (id) => ({
+        url: `posts/${id}`,
+        headers: {
+          hello: "I'm hoang"
+        },
+        params: {
+          firstName: 'Nguyen',
+          lastName: 'Hoang'
+        }
+      })
     }),
     updatePost: builder.mutation<Post, { id: string; body: Post }>({
       query(data) {
